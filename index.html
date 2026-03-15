@@ -602,12 +602,10 @@ function copyRow(){
 function downloadCSV(){
   const rows=[HEADERS, buildDataRow()];
   const csv=rows.map(r=>r.map(v=>{
-    const s=String(v??'');
-    return s.includes(',') || s.includes('
-') || s.includes('"') ? '"'+s.replace(/"/g,'""')+'"' : s;
-  }).join(',')).join('
-');
-  const bom='﻿';
+    const s=String(v!=null?v:'');
+    return (s.includes(',') || s.includes('\n') || s.includes('"')) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(',')).join('\n');
+  const bom='\uFEFF';
   const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
