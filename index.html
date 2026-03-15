@@ -345,6 +345,54 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
     </div>
   </div>
 
+  <!-- 저장 패널 -->
+  <div class="card" id="save-panel" style="border:1.5px solid #2e7d32;background:#f1f8f2">
+    <div class="card-title" style="border-bottom-color:#c8e6c9"><span class="num" style="background:#2e7d32">G</span> Google Sheets 저장</div>
+    <div style="font-size:12px;color:#555;margin-bottom:12px;line-height:1.6">
+      아래 버튼을 누르면 입력한 평가 데이터가 Google Sheets에 자동 저장됩니다.<br>
+      <span style="color:#888">※ 최초 1회 Apps Script URL 설정 필요 — README 참고</span>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;font-weight:500;color:#555">Apps Script 웹앱 URL</label>
+      <input type="text" id="script-url" placeholder="https://script.google.com/macros/s/[YOUR_ID]/exec" style="font-size:12px;margin-top:4px">
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button onclick="saveToSheets()" style="padding:9px 22px;background:#2e7d32;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500">구글 시트에 저장</button>
+      <span id="save-status" style="font-size:12px;color:#888"></span>
+    </div>
+  </div>
+
+  <!-- 저장 패널 -->
+  <div class="card" style="border:1.5px solid #2e7d32;background:#f1f8f2">
+    <div class="card-title" style="border-bottom-color:#c8e6c9"><span class="num" style="background:#2e7d32">G</span> Google Sheets에 저장하기</div>
+
+    <!-- 방법 1: 복사 붙여넣기 -->
+    <div style="background:#fff;border:1px solid #c8e6c9;border-radius:8px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:600;color:#2e7d32;margin-bottom:6px">방법 1 — 복사 &amp; 붙여넣기 (설정 없음, 즉시 사용)</div>
+      <div style="font-size:12px;color:#555;margin-bottom:10px;line-height:1.7">
+        ① 아래 버튼 클릭 → ② 구글 시트 열기 → ③ 빈 셀 클릭 후 <kbd style="background:#eee;border:1px solid #ccc;border-radius:3px;padding:1px 5px;font-size:11px">Ctrl+V</kbd> 붙여넣기
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button onclick="copyRow()" style="padding:9px 22px;background:#2e7d32;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600">📋 데이터 복사</button>
+        <span id="copy-status" style="font-size:12px;color:#888"></span>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:#aaa">
+        ※ 첫 저장 전, 구글 시트 1행에 아래 헤더를 먼저 붙여넣으세요 →
+        <button onclick="copyHeaders()" style="margin-left:6px;padding:3px 10px;font-size:11px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#fff;color:#555">헤더 복사</button>
+        <span id="header-status" style="font-size:11px;color:#888;margin-left:6px"></span>
+      </div>
+    </div>
+
+    <!-- 방법 2: CSV 다운로드 -->
+    <div style="background:#fff;border:1px solid #c8e6c9;border-radius:8px;padding:14px 16px">
+      <div style="font-size:13px;font-weight:600;color:#1565c0;margin-bottom:6px">방법 2 — CSV 파일 다운로드</div>
+      <div style="font-size:12px;color:#555;margin-bottom:10px;line-height:1.7">
+        CSV 파일로 저장 후 구글 시트에서 <b>파일 → 가져오기</b>로 불러옵니다.
+      </div>
+      <button onclick="downloadCSV()" style="padding:9px 22px;background:#1565c0;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600">⬇ CSV 다운로드</button>
+    </div>
+  </div>
+
   <div class="btn-nav">
     <button class="btn-secondary" onclick="goTo('p3',2)">← 이전</button>
     <button class="btn-primary" onclick="window.print()">🖨 인쇄 / PDF 저장</button>
@@ -506,6 +554,85 @@ document.getElementById('page').addEventListener('input', function(){
   syncDevHighlight();
 });
 renderFinal();
+
+function gv(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+
+const HEADERS=[
+  '저장시각','이름ID','평가일','평가자','평가회차','대상군','연령','평가유형',
+  'PHQ9','GAD7','PCL5','PHQ15','ICG','SDS','P4','사회적지지',
+  'Tier1배치','체크리스트_상향','체크리스트_하향',
+  '최종유형','조정방향','조정사유','발달과업_N수',
+  '임상소견_대상군','추가지표','서명_평가자','서명_수퍼바이저','확정일자'
+];
+
+function buildDataRow(){
+  const names={1:'유형 1 (위기관리)',2:'유형 2 (집중관리)',3:'유형 3 (일반관리)',4:'유형 4 (연결유지)'};
+  const devCnt=['dv1','dv2','dv3','dv4','dv5'].filter(id=>gv(id)==='N').length;
+  const grMap={parent:'op-parent',spouse:'op-spouse',sibling:'op-sibling',grandparent:'op-grandparent',survivor:'op-survivor',indirect:'op-indirect'};
+  const grp=document.getElementById('pgroup').value;
+  const extraInfo=[1,2,3,4,5,6,7,8,9].map(i=>{
+    const yn=gv('ex'+i+'-yn'),sc=gv('ex'+i+'-sc');
+    return yn?'['+i+']'+yn+(sc?'/'+sc:''):'';
+  }).filter(Boolean).join('; ');
+  return [
+    new Date().toLocaleString('ko-KR'),
+    gv('pid'), gv('pdate'), gv('prater'), gv('pround'),
+    document.getElementById('pgroup').selectedOptions[0]?.text||'',
+    gv('page'), track,
+    gv('s1'), gv('s2'), gv('s3'), gv('s4'), gv('s5'), gv('s6'), gv('s7'), gv('s8'),
+    tier1Type?names[tier1Type]:'B/C트랙',
+    Object.values(ck).filter(x=>x==='up').length,
+    Object.values(ck).filter(x=>x==='down').length,
+    document.getElementById('final-type-sel').selectedOptions[0]?.text||'',
+    gv('adj-dir'), gv('adj-reason'), devCnt,
+    grp&&grMap[grp]?gv(grMap[grp]):'',
+    extraInfo,
+    gv('sign-rater'), gv('sign-super'), gv('sign-date')
+  ];
+}
+
+function copyHeaders(){
+  const text=HEADERS.join('	');
+  navigator.clipboard.writeText(text).then(()=>{
+    const el=document.getElementById('header-status');
+    el.style.color='#2e7d32';
+    el.textContent='✓ 헤더 복사됨 — 구글 시트 1행에 붙여넣기';
+    setTimeout(()=>el.textContent='',4000);
+  });
+}
+
+function copyRow(){
+  const row=buildDataRow();
+  const text=row.map(v=>String(v??'')).join('	');
+  navigator.clipboard.writeText(text).then(()=>{
+    const el=document.getElementById('copy-status');
+    el.style.color='#2e7d32';
+    el.textContent='✓ 복사 완료! 구글 시트에서 Ctrl+V 로 붙여넣으세요.';
+    setTimeout(()=>el.textContent='',6000);
+  }).catch(()=>{
+    const el=document.getElementById('copy-status');
+    el.style.color='#c62828';
+    el.textContent='복사 실패 — 브라우저 권한을 확인하세요.';
+  });
+}
+
+function downloadCSV(){
+  const rows=[HEADERS, buildDataRow()];
+  const csv=rows.map(r=>r.map(v=>{
+    const s=String(v??'');
+    return s.includes(',') || s.includes('
+') || s.includes('"') ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(',')).join('
+');
+  const bom='﻿';
+  const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const pid=gv('pid')||'케이스';
+  const date=gv('pdate')||new Date().toISOString().slice(0,10);
+  a.href=url; a.download=pid+'_'+date+'_평가결과.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
 </script>
 </body>
 </html>
