@@ -600,19 +600,20 @@ function copyRow(){
 }
 
 function downloadCSV(){
-  const rows=[HEADERS, buildDataRow()];
+  const rows=[HEADERS,buildDataRow()];
+  const NL="\n";
   const csv=rows.map(r=>r.map(v=>{
     const s=String(v!=null?v:'');
-    return (s.includes(',') || s.includes('\n') || s.includes('"')) ? '"'+s.replace(/"/g,'""')+'"' : s;
-  }).join(',')).join('\n');
+    return (s.indexOf(',')>-1||s.indexOf(NL)>-1||s.indexOf('"')>-1)?'"'+s.replace(/"/g,'""')+'"':s;
+  }).join(',')).join(NL);
   const bom='\uFEFF';
   const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  const pid=gv('pid')||'케이스';
-  const date=gv('pdate')||new Date().toISOString().slice(0,10);
-  a.href=url; a.download=pid+'_'+date+'_평가결과.csv';
-  a.click(); URL.revokeObjectURL(url);
+  const pid=gv('pid')||'case';
+  const dt=gv('pdate')||new Date().toISOString().slice(0,10);
+  a.href=url;a.download=pid+'_'+dt+'_result.csv';
+  a.click();URL.revokeObjectURL(url);
 }
 </script>
 </body>
