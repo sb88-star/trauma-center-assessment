@@ -346,23 +346,6 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
   </div>
 
   <!-- 저장 패널 -->
-  <div class="card" id="save-panel" style="border:1.5px solid #2e7d32;background:#f1f8f2">
-    <div class="card-title" style="border-bottom-color:#c8e6c9"><span class="num" style="background:#2e7d32">G</span> Google Sheets 저장</div>
-    <div style="font-size:12px;color:#555;margin-bottom:12px;line-height:1.6">
-      아래 버튼을 누르면 입력한 평가 데이터가 Google Sheets에 자동 저장됩니다.<br>
-      <span style="color:#888">※ 최초 1회 Apps Script URL 설정 필요 — README 참고</span>
-    </div>
-    <div style="margin-bottom:12px">
-      <label style="font-size:12px;font-weight:500;color:#555">Apps Script 웹앱 URL</label>
-      <input type="text" id="script-url" placeholder="https://script.google.com/macros/s/[YOUR_ID]/exec" style="font-size:12px;margin-top:4px">
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <button onclick="saveToSheets()" style="padding:9px 22px;background:#2e7d32;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500">구글 시트에 저장</button>
-      <span id="save-status" style="font-size:12px;color:#888"></span>
-    </div>
-  </div>
-
-  <!-- 저장 패널 -->
   <div class="card" style="border:1.5px solid #2e7d32;background:#f1f8f2">
     <div class="card-title" style="border-bottom-color:#c8e6c9"><span class="num" style="background:#2e7d32">G</span> Google Sheets에 저장하기</div>
 
