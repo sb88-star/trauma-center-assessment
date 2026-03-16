@@ -71,6 +71,7 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
 .check-btn:hover{background:#f0f4f8}
 .check-btn.sel-up{background:#ffebee;border-color:#ef9a9a;color:#c62828}
 .check-btn.sel-down{background:#e8f5e9;border-color:#a5d6a7;color:#2e7d32}
+.check-btn.sel-na{background:#f5f5f5;border-color:#bbb;color:#888}
 .guide-table{width:100%;border-collapse:collapse;font-size:12px}
 .guide-table th{background:#37618e;color:#fff;padding:7px 10px;text-align:left;font-size:11px;font-weight:500}
 .guide-table td{padding:8px 10px;border-bottom:1px solid #eee;vertical-align:top;line-height:1.5}
@@ -230,13 +231,13 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
   <div class="card">
     <div class="card-title"><span class="num">3</span> 상/하향 조정 체크리스트 <span style="font-size:11px;font-weight:400;color:#c62828;margin-left:4px">● 의무</span></div>
     <table class="ck-table">
-      <thead><tr><th>평가 요인 / 세부 내용</th><th style="width:90px;text-align:center">상향</th><th style="width:90px;text-align:center">하향</th></tr></thead>
+      <thead><tr><th>평가 요인 / 세부 내용</th><th style="width:80px;text-align:center">상향</th><th style="width:80px;text-align:center">하향</th><th style="width:80px;text-align:center">해당없음</th><th style="width:160px">소견</th></tr></thead>
       <tbody>
-        <tr><td><div class="factor-name">1. 최근 중대 스트레스</div><div class="factor-sub">가족 사망, 경제위기, 기념일(4.16) 전후 악화</div></td><td style="text-align:center"><button class="check-btn" id="ck1-up" onclick="toggleCk(1,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck1-down" onclick="toggleCk(1,'down')">▼ 하향</button></td></tr>
-        <tr><td><div class="factor-name">2. 보호요인 수준</div><div class="factor-sub">↑ 지지체계 0~1명, 치료거부/중단 이력, 기능저하<br>↓ 지지체계 3명↑, 안정적 치료 참여, 직업/학업 유지</div></td><td style="text-align:center"><button class="check-btn" id="ck2-up" onclick="toggleCk(2,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck2-down" onclick="toggleCk(2,'down')">▼ 하향</button></td></tr>
-        <tr><td><div class="factor-name">3. 추가 위험요인</div><div class="factor-sub">물질사용, 만성통증, 법적문제, 대인갈등, 주거불안 (2개↑ 상향)<br>⚠ 자살시도력 → 상향 필수 (예외 없음)</div></td><td style="text-align:center"><button class="check-btn" id="ck3-up" onclick="toggleCk(3,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck3-down" onclick="toggleCk(3,'down')">▼ 하향</button></td></tr>
-        <tr><td><div class="factor-name">4. 점수-기능 일치도</div><div class="factor-sub">↑ 낮은 점수+기능저하 (축소보고) &nbsp;|&nbsp; ↓ 높은 점수+기능 양호 (과대보고)</div></td><td style="text-align:center"><button class="check-btn" id="ck4-up" onclick="toggleCk(4,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck4-down" onclick="toggleCk(4,'down')">▼ 하향</button></td></tr>
-        <tr><td><div class="factor-name">5. 서비스 강도 요구도</div><div class="factor-sub">↑ 집중서비스 요청, 위기 접촉 빈번 &nbsp;|&nbsp; ↓ 서비스 축소 희망, 자기관리 가능</div></td><td style="text-align:center"><button class="check-btn" id="ck5-up" onclick="toggleCk(5,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck5-down" onclick="toggleCk(5,'down')">▼ 하향</button></td></tr>
+        <tr><td><div class="factor-name">1. 최근 중대 스트레스</div><div class="factor-sub">가족 사망, 경제위기, 기념일(4.16) 전후 악화</div></td><td style="text-align:center"><button class="check-btn" id="ck1-up" onclick="toggleCk(1,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck1-down" onclick="toggleCk(1,'down')">▼ 하향</button></td><td style="text-align:center"><button class="check-btn" id="ck1-na" onclick="toggleCk(1,'na')">— N/A</button></td><td><input class="opinion-input" type="text" placeholder="소견" id="ck1-note"></td></tr>
+        <tr><td><div class="factor-name">2. 보호요인 수준</div><div class="factor-sub">↑ 지지체계 0~1명, 치료거부/중단 이력, 기능저하<br>↓ 지지체계 3명↑, 안정적 치료 참여, 직업/학업 유지</div></td><td style="text-align:center"><button class="check-btn" id="ck2-up" onclick="toggleCk(2,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck2-down" onclick="toggleCk(2,'down')">▼ 하향</button></td><td style="text-align:center"><button class="check-btn" id="ck2-na" onclick="toggleCk(2,'na')">— N/A</button></td><td><input class="opinion-input" type="text" placeholder="소견" id="ck2-note"></td></tr>
+        <tr><td><div class="factor-name">3. 추가 위험요인</div><div class="factor-sub">물질사용, 만성통증, 법적문제, 대인갈등, 주거불안 (2개↑ 상향)<br>⚠ 자살시도력 → 상향 필수 (예외 없음)</div></td><td style="text-align:center"><button class="check-btn" id="ck3-up" onclick="toggleCk(3,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck3-down" onclick="toggleCk(3,'down')">▼ 하향</button></td><td style="text-align:center"><button class="check-btn" id="ck3-na" onclick="toggleCk(3,'na')">— N/A</button></td><td><input class="opinion-input" type="text" placeholder="소견" id="ck3-note"></td></tr>
+        <tr><td><div class="factor-name">4. 점수-기능 일치도</div><div class="factor-sub">↑ 낮은 점수+기능저하 (축소보고) &nbsp;|&nbsp; ↓ 높은 점수+기능 양호 (과대보고)</div></td><td style="text-align:center"><button class="check-btn" id="ck4-up" onclick="toggleCk(4,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck4-down" onclick="toggleCk(4,'down')">▼ 하향</button></td><td style="text-align:center"><button class="check-btn" id="ck4-na" onclick="toggleCk(4,'na')">— N/A</button></td><td><input class="opinion-input" type="text" placeholder="소견" id="ck4-note"></td></tr>
+        <tr><td><div class="factor-name">5. 서비스 강도 요구도</div><div class="factor-sub">↑ 집중서비스 요청, 위기 접촉 빈번 &nbsp;|&nbsp; ↓ 서비스 축소 희망, 자기관리 가능</div></td><td style="text-align:center"><button class="check-btn" id="ck5-up" onclick="toggleCk(5,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck5-down" onclick="toggleCk(5,'down')">▼ 하향</button></td><td style="text-align:center"><button class="check-btn" id="ck5-na" onclick="toggleCk(5,'na')">— N/A</button></td><td><input class="opinion-input" type="text" placeholder="소견" id="ck5-note"></td></tr>
       </tbody>
     </table>
     <div class="info-note" style="margin-top:10px">판정: 상향 2↑ & 하향 0 → 1단계 상향 &nbsp;|&nbsp; 상향·하향 각 1 → 유지 &nbsp;|&nbsp; 하향 2↑ → 1단계 하향 &nbsp;|&nbsp; 자살시도력 → 상향 필수<br>제한: 하향 1단계만 허용 / 유형1 → 유형3·4 직접 하향 불가</div>
@@ -464,35 +465,21 @@ function renderResult(){
 }
 function toggleCk(n,dir){
   ck[n]=ck[n]===dir?null:dir;
-  ['up','down'].forEach(d=>document.getElementById('ck'+n+'-'+d).className='check-btn'+(ck[n]===d?' sel-'+d:''));
+  ['up','down','na'].forEach(d=>{const el=document.getElementById('ck'+n+'-'+d);if(el)el.className='check-btn'+(ck[n]===d?' sel-'+d:'');});
   renderFinal();
 }
 function renderFinal(){
-  const up=Object.values(ck).filter(x=>x==='up').length,dn=Object.values(ck).filter(x=>x==='down').length;
+  const up=Object.values(ck).filter(x=>x==='up').length,dn=Object.values(ck).filter(x=>x==='down').length,na=Object.values(ck).filter(x=>x==='na').length;
   const ckEl=document.getElementById('ck-summary');
-  if(ckEl)ckEl.innerHTML=`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="badge badge-danger">상향 ${up}개</span><span class="badge badge-ok">하향 ${dn}개</span></div>`;
-  let dir='',cls='';
-  if(up>=2&&dn===0){dir='1단계 상향 권고';cls='badge-danger';}
-  else if(up===1&&dn===1){dir='현행 유지 (종합 고려)';cls='badge-warn';}
-  else if(dn>=2){dir='1단계 하향 고려';cls='badge-ok';}
-  else if(up===1){dir='상향 고려';cls='badge-warn';}
-  else if(dn===1){dir='하향 고려';cls='badge-ok';}
-  else{dir='현행 유지';cls='badge-neutral';}
+  if(ckEl)ckEl.innerHTML=`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="badge badge-danger">상향 ${up}개</span><span class="badge badge-ok">하향 ${dn}개</span><span class="badge badge-neutral">해당없음 ${na}개</span></div>`;
   const names={1:'유형 1 (위기관리)',2:'유형 2 (집중관리)',3:'유형 3 (일반관리)',4:'유형 4 (연결유지)'};
   const isBC=track==='B'||track==='C';
-  const base=tier1Type?names[tier1Type]:(isBC?'B/C트랙':'Step 3 미실시');
-  let suggested=tier1Type;
-  if(!isBC&&tier1Type){
-    if(dir.includes('1단계 상향')&&tier1Type>1)suggested=tier1Type-1;
-    else if(dir.includes('1단계 하향')&&tier1Type<4)suggested=tier1Type+1;
-  }
-  const sugName=suggested?names[suggested]:'임상 판단 필요';
+  const base=tier1Type?names[tier1Type]:(isBC?'B/C트랙':'–');
   const frEl=document.getElementById('final-result');
   if(frEl)frEl.innerHTML=`
-    <div style="font-size:12px;color:#888;margin-bottom:6px">Tier1 알고리즘 제안: <strong style="color:#1F4E79">${base}</strong></div>
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px"><span class="badge ${cls}">${dir}</span></div>
-    <div style="font-size:16px;font-weight:600;color:#1F4E79;margin-bottom:4px">알고리즘 권고: ${sugName}</div>
-    <div style="font-size:11px;color:#aaa">아래에서 임상가가 최종 유형을 직접 선택·확정하세요.</div>
+    <div style="font-size:14px;color:#1F4E79;font-weight:600;margin-bottom:8px">Tier1 알고리즘 제안: ${base}</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><span class="badge badge-danger">상향 ${up}개</span><span class="badge badge-ok">하향 ${dn}개</span><span class="badge badge-neutral">해당없음 ${na}개</span></div>
+    <div style="font-size:11px;color:#aaa">위 Tier1 제안과 체크리스트 결과를 참고하여, 임상가가 아래에서 최종 유형을 직접 선택·확정하세요.</div>
   `;
 }
 function syncGuideHighlight(){
