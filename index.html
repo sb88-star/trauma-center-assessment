@@ -264,11 +264,10 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
     <table class="guide-table">
       <thead><tr><th style="width:125px">발달단계</th><th>추가 평가 영역 가이드</th><th style="width:175px">확인 시 소견</th></tr></thead>
       <tbody>
-        <tr id="dev-1"><td class="group-cell">청년초기 (18–24세)</td><td>진로 탐색 / 정체성 확립 / 대인관계 형성 / 분리-개별화 / 외상 재활성화</td><td><input class="opinion-input" type="text" placeholder="소견" id="op-dev1"></td></tr>
-        <tr id="dev-2"><td class="group-cell">성인기 (25–35세)</td><td>직업 안정성 / 파트너십·결혼 / 경제적 독립 / 생존자 죄책감 재활성화 / 물질 사용(AUDIT-C)</td><td><input class="opinion-input" type="text" placeholder="소견" id="op-dev2"></td></tr>
-        <tr id="dev-3"><td class="group-cell">중년진입 (36–42세)</td><td>양육 기능 / 경력 발전 / 세대간 역할 전환 / 외상의 세대간 전이</td><td><input class="opinion-input" type="text" placeholder="소견" id="op-dev3"></td></tr>
-        <tr id="dev-4"><td class="group-cell">중년~노년전환 (43–62세)</td><td>신체 건강(PHQ-15) / 은퇴·역할 상실 / 부부관계 / 의미 재구성 / 애도 만성화</td><td><input class="opinion-input" type="text" placeholder="소견" id="op-dev4"></td></tr>
-        <tr id="dev-5"><td class="group-cell">노년 (63세↑)</td><td>인지 기능(MMSE/MoCA 의뢰) / 다중 상실 누적 / 신체 기능(ADL) / 돌봄 필요도 / 생의 마무리</td><td><input class="opinion-input" type="text" placeholder="소견" id="op-dev5"></td></tr>
+        <tr id="dev-1"><td class="group-cell">성인모색기 (18–25세)</td><td>진로 탐색 / 정체성 확립 / 대인관계 형성 / 분리-개별화 / 외상 재활성화 <span style="font-size:10px;color:#888">[Arnett(2000)]</span></td><td><input class="opinion-input" type="text" placeholder="소견" id="op-dev1"></td></tr>
+        <tr id="dev-2"><td class="group-cell">성인초기 (26–39세)</td><td>직업 안정성 / 파트너십·결혼 / 경제적 독립 / 양육 기능 / 생존자 죄책감 재활성화 / 물질 사용(AUDIT-C) / 외상의 세대간 전이 <span style="font-size:10px;color:#888">[Erikson(1968) Stage 6]</span></td><td><input class="opinion-input" type="text" placeholder="소견" id="op-dev2"></td></tr>
+        <tr id="dev-3"><td class="group-cell">중년기 (40–64세)</td><td>신체 건강(PHQ-15) / 은퇴·역할 상실 / 부부관계 / 의미 재구성 / 애도 만성화 / 생존 자녀 관계 / 경력 발전 / 세대간 역할 전환 <span style="font-size:10px;color:#888">[Erikson(1968) Stage 7]</span></td><td><input class="opinion-input" type="text" placeholder="소견" id="op-dev3"></td></tr>
+        <tr id="dev-4"><td class="group-cell">노년기 (65세↑)</td><td>인지 기능(MMSE/MoCA 의뢰) / 다중 상실 누적 / 신체 기능(ADL) / 돌봄 필요도 / 생의 마무리 <span style="font-size:10px;color:#888">[Erikson(1968) Stage 8; WHO 65세]</span></td><td><input class="opinion-input" type="text" placeholder="소견" id="op-dev4"></td></tr>
       </tbody>
     </table>
   </div>
@@ -506,15 +505,14 @@ function syncGuideHighlight(){
 }
 function syncDevHighlight(){
   const age=v('page');
-  ['dev-1','dev-2','dev-3','dev-4','dev-5'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.background='';});
+  ['dev-1','dev-2','dev-3','dev-4'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.background='';});
   const disp=document.getElementById('dev-stage-display');
   if(age===null){if(disp)disp.textContent='연령 입력 시 해당 발달단계가 강조됩니다.';return;}
   let stageId='',stageName='';
-  if(age>=18&&age<=24){stageId='dev-1';stageName='청년초기 (18–24세)';}
-  else if(age>=25&&age<=35){stageId='dev-2';stageName='성인기 (25–35세)';}
-  else if(age>=36&&age<=42){stageId='dev-3';stageName='중년진입 (36–42세)';}
-  else if(age>=43&&age<=62){stageId='dev-4';stageName='중년~노년전환 (43–62세)';}
-  else if(age>=63){stageId='dev-5';stageName='노년 (63세↑)';}
+  if(age>=18&&age<=25){stageId='dev-1';stageName='성인모색기 (18–25세)';}
+  else if(age>=26&&age<=39){stageId='dev-2';stageName='성인초기 (26–39세)';}
+  else if(age>=40&&age<=64){stageId='dev-3';stageName='중년기 (40–64세)';}
+  else if(age>=65){stageId='dev-4';stageName='노년기 (65세↑)';}
   const lbl=document.getElementById('dev-stage-label');
   if(stageId){
     const el=document.getElementById(stageId);if(el)el.style.background='#fffde7';
