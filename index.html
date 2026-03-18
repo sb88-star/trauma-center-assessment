@@ -15,6 +15,7 @@ body{font-family:'맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',sans-seri
 .tab{padding:11px 16px;font-size:12px;border:none;background:none;cursor:pointer;color:#666;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.15s;font-family:inherit;font-weight:500;white-space:nowrap}
 .tab.active{color:#1F4E79;border-bottom-color:#1F4E79}
 .tab:hover:not(.active){color:#333;background:#f0f4f8}
+.tab.skipped{color:#ccc;pointer-events:none;text-decoration:line-through}
 .page{display:none}.page.active{display:block}
 .progress-bar{height:4px;background:#ddd;border-radius:2px;margin-bottom:18px;overflow:hidden}
 .progress-fill{height:100%;background:#1F4E79;border-radius:2px;transition:width 0.3s}
@@ -120,10 +121,11 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
 </div>
 <div class="container">
 <div class="tab-bar">
-  <button class="tab active" onclick="showPage('p1',0)">① 대상자 정보</button>
-  <button class="tab" onclick="showPage('p2',1)">② 척도 입력 (Tier1)</button>
-  <button class="tab" onclick="showPage('p3',2)">③ 자동 분류 결과</button>
-  <button class="tab" onclick="showPage('p4',3)">④ 임상 판정 (Tier2)</button>
+  <button class="tab active"  id="tab-p1" onclick="showPage('p1',0)">① 대상자 정보</button>
+  <button class="tab" id="tab-p5" onclick="showPage('p5',1)" style="display:none">② 대체사정 (B/C)</button>
+  <button class="tab" id="tab-p2" onclick="showPage('p2',2)">② 척도 입력 (Tier1)</button>
+  <button class="tab" id="tab-p3" onclick="showPage('p3',3)">③ 자동 분류 결과</button>
+  <button class="tab" id="tab-p4" onclick="showPage('p4',4)">④ 임상 판정 (Tier2)</button>
 </div>
 <div class="progress-bar"><div class="progress-fill" id="prog" style="width:25%"></div></div>
 
@@ -163,15 +165,21 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
         <button class="track-btn" id="trackC" onclick="selectTrack('C')">C — 임상요약</button>
       </div>
       <div style="font-size:11px;color:#aaa;margin-top:6px">A: 직접 응답 가능 &nbsp;|&nbsp; B: 기능관찰 기반 &nbsp;|&nbsp; C: 임상기록 기반 (B/C → 대체사정 실시)</div>
+      <!-- 진행 흐름 표시 -->
+      <div id="flow-indicator" style="margin-top:12px;padding:10px 14px;border-radius:8px;background:#f0f4f8;border:1px solid #d0dce8;font-size:12px">
+        <span style="font-weight:600;color:#1F4E79;margin-right:6px">진행 경로:</span>
+        <span id="flow-text" style="color:#555">① 대상자 정보 → <strong>② 척도 입력</strong> → ③ 자동 분류 → ④ 임상 판정</span>
+      </div>
     </div>
   </div>
-  <div class="btn-nav"><div></div><button class="btn-primary" onclick="goTo('p2',1)">다음 단계 →</button></div>
+  <div class="btn-nav"><div></div><button class="btn-primary" id="btn-next-p1" onclick="nextFromP1()">다음 단계 →</button></div>
 </div>
 
 <!-- PAGE 2 -->
 <div id="p2" class="page">
   <div id="bc-notice" class="track-bc-notice" style="display:none">
     ⚠️ <strong>B/C트랙 적용 중</strong> — 척도 점수 입력 불필요. 대체사정_평가거부자 시트 절차(최소 안전 확인 면담 + 기능 관찰 사정)를 실시한 후 Step 3으로 이동하세요.
+    <div style="margin-top:8px"><button class="btn-primary" style="font-size:12px;padding:6px 16px" onclick="goTo('p5')">→ 대체사정 양식으로 이동</button></div>
   </div>
   <div class="card" id="scale-card">
     <div class="card-title"><span class="num">2</span> 척도별 총점 입력 — 노란 셀에 해당</div>
@@ -191,8 +199,8 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
     <div style="font-size:10px;color:#bbb;margin-top:8px">절단점 — PHQ-9(10/15) GAD-7(10/15) PCL-5(31/44) PHQ-15(10/15) ICG(25/35) SDS(10/15) P4(1/2)</div>
   </div>
   <div class="btn-nav">
-    <button class="btn-secondary" onclick="goTo('p1',0)">← 이전</button>
-    <button class="btn-primary" onclick="goTo('p3',2)">자동 분류 결과 보기 →</button>
+    <button class="btn-secondary" onclick="goTo('p1')">← 이전</button>
+    <button class="btn-primary" onclick="goTo('p3')">자동 분류 결과 보기 →</button>
   </div>
 </div>
 
@@ -219,8 +227,8 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
     </div>
   </div>
   <div class="btn-nav">
-    <button class="btn-secondary" onclick="goTo('p2',1)">← 이전</button>
-    <button class="btn-primary" onclick="goTo('p4',3)">Tier2 임상 판정으로 →</button>
+    <button class="btn-secondary" onclick="goTo('p2')">← 이전</button>
+    <button class="btn-primary" onclick="goTo('p4')">Tier2 임상 판정으로 →</button>
   </div>
 </div>
 
@@ -229,7 +237,7 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
 
   <!-- 섹션 3: 체크리스트 -->
   <div class="card">
-    <div class="card-title"><span class="num">3</span> 상/하향 조정 체크리스트 <span style="font-size:11px;font-weight:400;color:#c62828;margin-left:4px">● 의무</span></div>
+    <div class="card-title"><span class="num">3</span> 상/하향 조정 체크리스트 <span style="font-size:11px;font-weight:400;color:#888;margin-left:4px">참고용 — 면담 기반 해당사항 작성</span></div>
     <table class="ck-table">
       <thead><tr><th>평가 요인 / 세부 내용</th><th style="width:80px;text-align:center">상향</th><th style="width:80px;text-align:center">하향</th><th style="width:80px;text-align:center">해당없음</th><th style="width:160px">소견</th></tr></thead>
       <tbody>
@@ -240,7 +248,7 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
         <tr><td><div class="factor-name">5. 서비스 강도 요구도</div><div class="factor-sub">↑ 집중서비스 요청, 위기 접촉 빈번 &nbsp;|&nbsp; ↓ 서비스 축소 희망, 자기관리 가능</div></td><td style="text-align:center"><button class="check-btn" id="ck5-up" onclick="toggleCk(5,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck5-down" onclick="toggleCk(5,'down')">▼ 하향</button></td><td style="text-align:center"><button class="check-btn" id="ck5-na" onclick="toggleCk(5,'na')">— N/A</button></td><td><input class="opinion-input" type="text" placeholder="소견" id="ck5-note"></td></tr>
       </tbody>
     </table>
-    <div class="info-note" style="margin-top:10px">판정: 상향 2↑ & 하향 0 → 1단계 상향 &nbsp;|&nbsp; 상향·하향 각 1 → 유지 &nbsp;|&nbsp; 하향 2↑ → 1단계 하향 &nbsp;|&nbsp; 자살시도력 → 상향 필수<br>제한: 하향 1단계만 허용 / 유형1 → 유형3·4 직접 하향 불가</div>
+    <div class="info-note" style="margin-top:10px">판정시 참고: 상향 2↑ & 하향 0 → 1단계 상향 &nbsp;|&nbsp; 상향·하향 각 1 → 유지 &nbsp;|&nbsp; 하향 2↑ → 1단계 하향 &nbsp;|&nbsp; 자살시도력 → 상향 필수<br>권고: 하향 1단계만 허용 / 유형1 → 유형3·4 직접 하향 불가</div>
     <div id="ck-summary" style="margin-top:10px"></div>
   </div>
 
@@ -377,8 +385,106 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
   </div>
 
   <div class="btn-nav">
-    <button class="btn-secondary" onclick="goTo('p3',2)">← 이전</button>
+    <button class="btn-secondary" onclick="track==='A'?goTo('p3'):goTo('p5')">← 이전</button>
     <button class="btn-primary" onclick="window.print()">🖨 인쇄 / PDF 저장</button>
+  </div>
+</div>
+
+<!-- PAGE 5: B/C 트랙 대체사정 -->
+<div id="p5" class="page">
+  <div class="danger-alert" style="margin-bottom:14px">
+    ⚠️ <strong>B/C트랙 대체사정 양식</strong> — 평가 비협조 대상자에 대한 대안 사정 프로토콜 (v8.2)
+  </div>
+
+  <!-- 섹션 A: 평가 거부 사유 -->
+  <div class="card">
+    <div class="card-title"><span class="num">A</span> 평가 거부 사유</div>
+    <table class="ck-table">
+      <thead><tr><th>사유</th><th style="width:160px;text-align:center">해당여부</th><th style="width:200px">비고</th></tr></thead>
+      <tbody>
+        <tr><td>1. 자가보고 설문에 대해 명시적 거부 의사</td><td style="text-align:center"><select class="yn-select" id="rs1" style="width:120px"><option value="">–</option><option>해당</option><option>비해당</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="rs1-note"></td></tr>
+        <tr><td>2. 설문 응답으로 인한 정서적 악화 우려</td><td style="text-align:center"><select class="yn-select" id="rs2" style="width:120px"><option value="">–</option><option>해당</option><option>비해당</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="rs2-note"></td></tr>
+        <tr><td>3. 평가 문항이 재외상화 위험 유발 (사례관리자 판단)</td><td style="text-align:center"><select class="yn-select" id="rs3" style="width:120px"><option value="">–</option><option>해당</option><option>비해당</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="rs3-note"></td></tr>
+        <tr><td>4. 관계 형성 단계로 평가 시기상조</td><td style="text-align:center"><select class="yn-select" id="rs4" style="width:120px"><option value="">–</option><option>해당</option><option>비해당</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="rs4-note"></td></tr>
+        <tr><td>5. 기타</td><td style="text-align:center"><select class="yn-select" id="rs5" style="width:120px"><option value="">–</option><option>해당</option><option>비해당</option></select></td><td><input class="opinion-input" type="text" placeholder="기타 사유 기재" id="rs5-note"></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 섹션 B: 최소 안전 확인 면담 -->
+  <div class="card">
+    <div class="card-title"><span class="num">B</span> 최소 안전 확인 면담 <span style="font-size:11px;font-weight:400;color:#c62828;margin-left:4px">● 1순위 필수</span></div>
+    <div class="info-note" style="margin-bottom:12px">점수화하지 않음. "안전 확인 완료"로 기록. 모든 항목 확인 후 종합 판단.</div>
+    <table class="ck-table">
+      <thead><tr><th style="width:40px">#</th><th>항목</th><th style="width:160px">응답 옵션</th><th style="width:160px;text-align:center">결과</th><th style="width:180px">비고</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>자살사고 유무 (구두 단일 질문)</td><td style="font-size:11px;color:#888">예/아니오/확인불가</td><td style="text-align:center"><select class="yn-select" id="si1" style="width:130px"><option value="">–</option><option>예</option><option>아니오</option><option>확인불가</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="si1-note"></td></tr>
+        <tr><td>2</td><td>현재 혼자 생활 여부</td><td style="font-size:11px;color:#888">독거/동거/확인불가</td><td style="text-align:center"><select class="yn-select" id="si2" style="width:130px"><option value="">–</option><option>독거</option><option>동거</option><option>확인불가</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="si2-note"></td></tr>
+        <tr><td>3</td><td>긴급 연락 가능 보호자 존재</td><td style="font-size:11px;color:#888">있음/없음/확인불가</td><td style="text-align:center"><select class="yn-select" id="si3" style="width:130px"><option value="">–</option><option>있음</option><option>없음</option><option>확인불가</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="si3-note"></td></tr>
+        <tr><td>4</td><td>최근 위험 행동 (폭음, 극단적 고립 등)</td><td style="font-size:11px;color:#888">있음/없음/확인불가</td><td style="text-align:center"><select class="yn-select" id="si4" style="width:130px"><option value="">–</option><option>있음</option><option>없음</option><option>확인불가</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="si4-note"></td></tr>
+        <tr style="background:#fff8e1"><td>5</td><td><strong>안전 확인 종합</strong></td><td style="font-size:11px;color:#888">안전 / 주의 / 위험</td><td style="text-align:center"><select class="yn-select" id="si5" style="width:130px;font-weight:600" onchange="updateBCRecommendation()"><option value="">–</option><option>안전</option><option>주의</option><option>위험</option></select></td><td><input class="opinion-input" type="text" placeholder="종합 소견" id="si5-note"></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 섹션 C: 기능 중심 관찰 사정 -->
+  <div class="card">
+    <div class="card-title"><span class="num">C</span> 기능 중심 관찰 사정 <span style="font-size:11px;font-weight:400;color:#888;margin-left:4px">● 2순위 (B트랙 주요)</span></div>
+    <table class="ck-table">
+      <thead><tr><th style="width:40px">#</th><th>기능 영역</th><th style="width:200px;text-align:center">수준</th><th style="width:200px">비고</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>외출 가능 여부</td><td style="text-align:center"><select class="yn-select" id="fn1" style="width:170px" onchange="updateBCRecommendation()"><option value="">–</option><option>유지</option><option>부분저하</option><option>현저한 저하</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="fn1-note"></td></tr>
+        <tr><td>2</td><td>수면 유지 여부</td><td style="text-align:center"><select class="yn-select" id="fn2" style="width:170px" onchange="updateBCRecommendation()"><option value="">–</option><option>유지</option><option>부분저하</option><option>현저한 저하</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="fn2-note"></td></tr>
+        <tr><td>3</td><td>기본 식사/위생 가능 여부</td><td style="text-align:center"><select class="yn-select" id="fn3" style="width:170px" onchange="updateBCRecommendation()"><option value="">–</option><option>유지</option><option>부분저하</option><option>현저한 저하</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="fn3-note"></td></tr>
+        <tr><td>4</td><td>가족·지인과 최소 접촉 여부</td><td style="text-align:center"><select class="yn-select" id="fn4" style="width:170px" onchange="updateBCRecommendation()"><option value="">–</option><option>유지</option><option>부분저하</option><option>현저한 저하</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="fn4-note"></td></tr>
+        <tr><td>5</td><td>직업/학업 활동 유지 여부</td><td style="text-align:center"><select class="yn-select" id="fn5" style="width:170px" onchange="updateBCRecommendation()"><option value="">–</option><option>유지</option><option>부분저하</option><option>현저한 저하</option></select></td><td><input class="opinion-input" type="text" placeholder="비고" id="fn5-note"></td></tr>
+        <tr style="background:#f4f7fb"><td>6</td><td><strong>기능 수준 종합</strong></td><td style="text-align:center"><select class="yn-select" id="fn6" style="width:170px;font-weight:600" onchange="updateBCRecommendation()"><option value="">–</option><option>유지</option><option>부분 저하</option><option>현저한 저하</option></select></td><td><input class="opinion-input" type="text" placeholder="종합 소견" id="fn6-note"></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 섹션 D: 최소 행정 데이터셋 -->
+  <div class="card">
+    <div class="card-title"><span class="num">D</span> 최소 행정 데이터셋 (Minimum Administrative Dataset)</div>
+    <div class="info-note" style="margin-bottom:12px">이 5개 항목은 모든 사례에서 100% 확보 가능한 항목입니다.</div>
+    <table class="extra-table">
+      <thead><tr><th style="width:40px">#</th><th style="width:160px">항목</th><th style="width:200px;text-align:center">입력</th><th>옵션 설명</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>관리유형</td><td style="text-align:center"><select class="yn-select" id="mad1" style="width:170px" onchange="updateBCRecommendation()"><option value="">–</option><option>관찰·관계유지</option><option>일반</option><option>집중</option><option>위기</option></select></td><td style="font-size:11px;color:#888">관찰·관계유지 / 일반 / 집중 / 위기</td></tr>
+        <tr><td>2</td><td>안전확인 실시 여부</td><td style="text-align:center"><select class="yn-select" id="mad2" style="width:170px"><option value="">–</option><option>Y</option><option>N</option></select></td><td style="font-size:11px;color:#888">Y / N</td></tr>
+        <tr><td>3</td><td>기능 수준</td><td style="text-align:center"><select class="yn-select" id="mad3" style="width:170px"><option value="">–</option><option>유지</option><option>부분 저하</option><option>현저한 저하</option></select></td><td style="font-size:11px;color:#888">유지 / 부분 저하 / 현저한 저하</td></tr>
+        <tr><td>4</td><td>사회적 지지</td><td style="text-align:center"><select class="yn-select" id="mad4" style="width:170px"><option value="">–</option><option>있음</option><option>제한</option><option>없음</option></select></td><td style="font-size:11px;color:#888">있음 / 제한 / 없음</td></tr>
+        <tr><td>5</td><td>위기 개입 여부</td><td style="text-align:center"><select class="yn-select" id="mad5" style="width:170px"><option value="">–</option><option>Y</option><option>N</option></select></td><td style="font-size:11px;color:#888">Y / N</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 섹션 E: 권고 배치 판정 가이드라인 + 자동 제안 -->
+  <div class="card">
+    <div class="card-title"><span class="num">E</span> 권고 배치 판정 가이드라인</div>
+    <table class="guide-table" style="margin-bottom:14px">
+      <thead><tr><th style="width:120px">안전 확인</th><th style="width:140px">기능 수준</th><th style="width:120px">사회적 지지</th><th>권고 배치</th></tr></thead>
+      <tbody>
+        <tr><td style="color:#c62828;font-weight:600">위험</td><td>—</td><td>—</td><td><span class="badge badge-danger">유형1 (위기관리)</span></td></tr>
+        <tr><td style="color:#c75000;font-weight:600">주의</td><td>현저한 저하</td><td>—</td><td><span class="badge badge-warn">유형1 (위기관리) 검토</span></td></tr>
+        <tr><td style="color:#c75000;font-weight:600">주의</td><td>부분 저하</td><td>없음/제한</td><td><span class="badge" style="background:#fff3e0;color:#e65100">유형2 (집중관리) 검토</span></td></tr>
+        <tr><td style="color:#2e7d32;font-weight:600">안전</td><td>부분 저하</td><td>있음</td><td><span class="badge" style="background:#e3f2fd;color:#1565c0">유형3 (일반관리)</span></td></tr>
+        <tr><td style="color:#2e7d32;font-weight:600">안전</td><td>유지</td><td>—</td><td><span class="badge badge-ok">유형4 (연결유지) / 관찰·관계유지</span></td></tr>
+      </tbody>
+    </table>
+    <div id="bc-auto-rec" style="margin-bottom:14px"></div>
+    <div><label>임상가 소견 (대체사정 종합)</label><textarea id="bc-opinion" placeholder="평가 상황, 대체사정 방법, 임상적 판단 근거 등을 기재하세요." style="min-height:80px"></textarea></div>
+    <div style="margin-top:10px"><label>재사정 계획</label><input type="text" id="bc-replan" placeholder="예) 1개월 후 척도 재시도 권고, 가족 동반 면담 계획"></div>
+    <div class="sign-row" style="margin-top:14px">
+      <div><label>평가자</label><input type="text" id="bc-sign-rater" placeholder="성명"></div>
+      <div><label>수퍼바이저</label><input type="text" id="bc-sign-super" placeholder="성명"></div>
+      <div><label>확정 일자</label><input type="text" id="bc-sign-date" placeholder="예: 2026-03-15"></div>
+    </div>
+  </div>
+
+  <div class="btn-nav">
+    <button class="btn-secondary" onclick="goTo('p1')">← 대상자 정보로</button>
+    <button class="btn-primary" onclick="goTo('p4')">④ Tier2 임상 판정으로 →</button>
   </div>
 </div>
 </div>
@@ -386,18 +492,31 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
 <script>
 let track='A', ck={1:null,2:null,3:null,4:null,5:null}, tier1Type=null;
 
-function showPage(id,idx){
+// 페이지 → 탭 ID 매핑
+const PAGE_TAB={p1:'tab-p1',p2:'tab-p2',p3:'tab-p3',p4:'tab-p4',p5:'tab-p5'};
+// 트랙별 진행 순서
+const FLOW_A=['p1','p2','p3','p4'];
+const FLOW_BC=['p1','p5','p4'];
+
+function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.tab')[idx].classList.add('active');
-  document.getElementById('prog').style.width=((idx+1)*25)+'%';
+  const tabEl=document.getElementById(PAGE_TAB[id]);
+  if(tabEl) tabEl.classList.add('active');
+  const flow=track==='A'?FLOW_A:FLOW_BC;
+  const cur=flow.indexOf(id)+1;
+  document.getElementById('prog').style.width=(cur/flow.length*100)+'%';
 }
-function goTo(id,idx){
-  showPage(id,idx);
+function goTo(id){
+  showPage(id);
   if(id==='p3') renderResult();
   if(id==='p4'){ renderFinal(); syncGuideHighlight(); syncDevHighlight(); }
   window.scrollTo({top:0,behavior:'smooth'});
+}
+function nextFromP1(){
+  const isBC=track==='B'||track==='C';
+  goTo(isBC?'p5':'p2');
 }
 function selectTrack(t){
   track=t;
@@ -406,6 +525,32 @@ function selectTrack(t){
   document.getElementById('bc-notice').style.display=isBC?'block':'none';
   document.getElementById('scale-card').style.opacity=isBC?0.4:1;
   document.getElementById('scale-card').style.pointerEvents=isBC?'none':'auto';
+  // 탭 가시성: B/C → ②대체사정 보임, ②③척도/분류 숨김
+  document.getElementById('tab-p5').style.display=isBC?'inline-block':'none';
+  document.getElementById('tab-p2').style.display=isBC?'none':'inline-block';
+  document.getElementById('tab-p3').style.display=isBC?'none':'inline-block';
+  // ④ 임상판정 탭 번호 라벨 조정
+  document.getElementById('tab-p4').textContent=isBC?'③ 임상 판정 (Tier2)':'④ 임상 판정 (Tier2)';
+  // 흐름 안내
+  const flowEl=document.getElementById('flow-text');
+  if(flowEl){
+    if(isBC) flowEl.innerHTML='① 대상자 정보 → <strong style="color:#c75000">② 대체사정 (B/C)</strong> → <strong>③ 임상 판정</strong>';
+    else flowEl.innerHTML='① 대상자 정보 → <strong>② 척도 입력</strong> → ③ 자동 분류 → ④ 임상 판정';
+  }
+}
+function updateBCRecommendation(){
+  const safety=document.getElementById('si5').value;
+  const fnLvl=document.getElementById('fn6').value;
+  const support=document.getElementById('mad4').value;
+  const el=document.getElementById('bc-auto-rec');
+  if(!el) return;
+  let rec='',cls='';
+  if(safety==='위험'){rec='⚡ 유형 1 (위기관리) — 즉각 슈퍼바이저 보고 및 위기개입 프로토콜 가동';cls='danger-alert';}
+  else if(safety==='주의'&&fnLvl==='현저한 저하'){rec='⚠ 유형 1 (위기관리) 검토 — 집중 모니터링 권고';cls='danger-alert';}
+  else if(safety==='주의'&&(support==='없음'||support==='제한')){rec='⚠ 유형 2 (집중관리) 검토 — 사회적 지지 부족 고려';cls='warn-alert';}
+  else if(safety==='안전'&&(fnLvl==='부분저하'||fnLvl==='부분 저하')){rec='✔ 유형 3 (일반관리) — 월 1~2회 접촉';cls='warn-alert';}
+  else if(safety==='안전'&&(fnLvl==='유지'||fnLvl==='')){rec='✔ 유형 4 (연결유지) 또는 관찰·관계유지 — 분기~연 1회 접촉';cls='';}
+  el.innerHTML=rec?`<div class="${cls||'info-note'}"><strong>자동 권고 배치:</strong> ${rec}</div>`:'';
 }
 function v(id){const el=document.getElementById(id);return el&&el.value!==''?parseFloat(el.value):null;}
 function setBadges(si,bs,be,sc,se){
