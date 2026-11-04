@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>사례관리 평가체계 통합 도구 시뮬레이션 (v8.2)</title>
+<title>사례관리 평가체계 통합 도구 시뮬레이션 (v8.4)</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#f0f2f5;color:#222;font-size:15px}
@@ -117,7 +117,7 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
 <body>
 <div class="header">
   <h1>사례관리 평가체계 통합 도구 시뮬레이션</h1>
-  <span>안산마음건강트라우마센터 · v8.2 · 2-Tier 통합</span>
+  <span>안산마음건강트라우마센터 · v8.4 · 2-Tier 통합</span>
 </div>
 <div class="container">
 <div class="tab-bar">
@@ -248,7 +248,7 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
         <tr><td><div class="factor-name">5. 서비스 강도 요구도</div><div class="factor-sub">↑ 집중서비스 요청, 위기 접촉 빈번 &nbsp;|&nbsp; ↓ 서비스 축소 희망, 자기관리 가능</div></td><td style="text-align:center"><button class="check-btn" id="ck5-up" onclick="toggleCk(5,'up')">▲ 상향</button></td><td style="text-align:center"><button class="check-btn" id="ck5-down" onclick="toggleCk(5,'down')">▼ 하향</button></td><td style="text-align:center"><button class="check-btn" id="ck5-na" onclick="toggleCk(5,'na')">— N/A</button></td><td><input class="opinion-input" type="text" placeholder="소견" id="ck5-note"></td></tr>
       </tbody>
     </table>
-    <div class="info-note" style="margin-top:10px">판정시 참고: 상향 2↑ & 하향 0 → 1단계 상향 &nbsp;|&nbsp; 상향·하향 각 1 → 유지 &nbsp;|&nbsp; 하향 2↑ → 1단계 하향 &nbsp;|&nbsp; 자살시도력 → 상향 필수<br>권고: 하향 1단계만 허용 / 유형1 → 유형3·4 직접 하향 불가</div>
+    <div class="info-note" style="margin-top:10px">판정 시 참고: 조정은 체크 개수가 아니라 <strong>가장 무게 있는 요인</strong>으로 판단하고, 그 요인을 아래 "주된 조정 근거"와 조정 사유에 적습니다.<br>우선순위: ① 자살시도력·자살위험 신호(상향 필수) → ② 점수-기능 불일치(축소보고)·기능저하·최근 중대 스트레스 → ③ 보호요인·추가 위험요인 → ④ 서비스 요구도·대상자 희망. 서비스 축소 희망 같은 하향 요인은 안전 신호를 상쇄하지 않습니다.<br>규칙: 조정은 한 단계 안에서만 / 유형1 → 유형3·4 직접 하향 불가 / 조정 사유 필수 기재</div>
     <div id="ck-summary" style="margin-top:10px"></div>
   </div>
 
@@ -338,7 +338,23 @@ input:focus,select:focus,textarea:focus{border-color:#1F4E79;background:#fff;box
         </select>
       </div>
     </div>
-    <div style="margin-top:8px"><label>조정 사유 (필수 기재)</label><textarea id="adj-reason" placeholder="예) 자살시도력 확인됨. 사회적 지지 0명 고립 상태. 체크리스트 상향 2개 해당. → 유형 1로 상향 확정."></textarea></div>
+    <div style="margin-top:8px"><label>주된 조정 근거 (한 가지, 유지일 때도 선택)</label>
+      <select id="adj-basis">
+        <option value="">-- 선택 --</option>
+        <option>자살시도력·자살위험 신호</option>
+        <option>점수-기능 불일치 (축소보고 의심)</option>
+        <option>점수-기능 불일치 (과대보고 의심)</option>
+        <option>최근 중대 스트레스·기념일 반응</option>
+        <option>보호요인 부족</option>
+        <option>보호요인 충분</option>
+        <option>추가 위험요인</option>
+        <option>서비스 요구도·대상자 희망</option>
+        <option>대상군·발달단계 가이드</option>
+        <option>대체사정 결과 (B/C트랙)</option>
+        <option>조정 근거 없음 (자동배치 유지)</option>
+      </select>
+    </div>
+    <div style="margin-top:8px"><label>조정 사유 (필수 기재)</label><textarea id="adj-reason" placeholder="예) 자살시도력 확인됨(주된 근거). 사회적 지지 0명 고립 상태. → 유형 1로 상향 확정."></textarea></div>
     <div style="margin-top:14px">
       <div class="section-label">서명</div>
       <div class="sign-row">
@@ -615,16 +631,19 @@ function toggleCk(n,dir){
 }
 function renderFinal(){
   const up=Object.values(ck).filter(x=>x==='up').length,dn=Object.values(ck).filter(x=>x==='down').length,na=Object.values(ck).filter(x=>x==='na').length;
+  const FN={1:'1.최근 중대 스트레스',2:'2.보호요인',3:'3.추가 위험요인',4:'4.점수-기능 일치도',5:'5.서비스 요구도'};
+  const upList=Object.keys(ck).filter(k=>ck[k]==='up').map(k=>FN[k]).join(', ')||'없음';
+  const dnList=Object.keys(ck).filter(k=>ck[k]==='down').map(k=>FN[k]).join(', ')||'없음';
   const ckEl=document.getElementById('ck-summary');
-  if(ckEl)ckEl.innerHTML=`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="badge badge-danger">상향 ${up}개</span><span class="badge badge-ok">하향 ${dn}개</span><span class="badge badge-neutral">해당없음 ${na}개</span></div>`;
+  if(ckEl)ckEl.innerHTML=`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="badge badge-danger">상향 표시: ${upList}</span><span class="badge badge-ok">하향 표시: ${dnList}</span></div>`;
   const names={1:'유형 1 (위기관리)',2:'유형 2 (집중관리)',3:'유형 3 (일반관리)',4:'유형 4 (연결유지)'};
   const isBC=track==='B'||track==='C';
   const base=tier1Type?names[tier1Type]:(isBC?'B/C트랙':'–');
   const frEl=document.getElementById('final-result');
   if(frEl)frEl.innerHTML=`
     <div style="font-size:14px;color:#1F4E79;font-weight:600;margin-bottom:8px">Tier1 알고리즘 제안: ${base}</div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><span class="badge badge-danger">상향 ${up}개</span><span class="badge badge-ok">하향 ${dn}개</span><span class="badge badge-neutral">해당없음 ${na}개</span></div>
-    <div style="font-size:11px;color:#aaa">위 Tier1 제안과 체크리스트 결과를 참고하여, 임상가가 아래에서 최종 유형을 직접 선택·확정하세요.</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><span class="badge badge-danger">상향 표시: ${upList}</span><span class="badge badge-ok">하향 표시: ${dnList}</span></div>
+    <div style="font-size:11px;color:#aaa">표시한 요인 가운데 가장 무게 있는 것을 "주된 조정 근거"로 고르고, 임상가가 아래에서 최종 유형을 직접 선택·확정하세요. 개수로 정하지 않습니다.</div>
   `;
 }
 function syncGuideHighlight(){
@@ -673,8 +692,8 @@ function gv(id){const el=document.getElementById(id);return el?el.value.trim():'
 const HEADERS=[
   '저장시각','이름ID','평가일','평가자','평가회차','대상군','연령','평가유형',
   'PHQ9','GAD7','PCL5','PHQ15','ICG','SDS','P4','사회적지지',
-  'Tier1배치','체크리스트_상향','체크리스트_하향',
-  '최종유형','조정방향','조정사유','발달과업_N수',
+  'Tier1배치','체크_상향요인','체크_하향요인',
+  '최종유형','조정방향','주된조정근거','조정사유','발달과업_N수',
   '임상소견_대상군','추가지표','서명_평가자','서명_수퍼바이저','확정일자'
 ];
 
@@ -694,10 +713,10 @@ function buildDataRow(){
     gv('page'), track,
     gv('s1'), gv('s2'), gv('s3'), gv('s4'), gv('s5'), gv('s6'), gv('s7'), gv('s8'),
     tier1Type?names[tier1Type]:'B/C트랙',
-    Object.values(ck).filter(x=>x==='up').length,
-    Object.values(ck).filter(x=>x==='down').length,
+    Object.keys(ck).filter(k=>ck[k]==='up').join('/'),
+    Object.keys(ck).filter(k=>ck[k]==='down').join('/'),
     document.getElementById('final-type-sel').selectedOptions[0]?.text||'',
-    gv('adj-dir'), gv('adj-reason'), devCnt,
+    gv('adj-dir'), gv('adj-basis'), gv('adj-reason'), devCnt,
     grp&&grMap[grp]?gv(grMap[grp]):'',
     extraInfo,
     gv('sign-rater'), gv('sign-super'), gv('sign-date')
