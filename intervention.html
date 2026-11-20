@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>사례관리 개입 종류 선택</title>
+  <style>
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --subtle: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-sub: #475569;
+  --text-muted: #64748b;
+  --navy: #16324f;
+  --navy-hover: #0f253b;
+  --accent-bg: #e8f0f8;
+  --accent-text: #16324f;
+  --ok-bg: #ecfdf5;
+  --ok-border: #a7f3d0;
+  --ok-text: #065f46;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 28px 16px 64px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.container {
+  max-width: 920px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+header.page-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.preset-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.preset-btn {
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-sub);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.preset-btn:hover { background: var(--subtle); }
+.preset-btn.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #ffffff;
+}
+.chips-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--subtle);
+}
+.chips-panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.chip-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.chip-group:last-child {
+  margin-bottom: 0;
+}
+.chip-group-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.chip:hover { border-color: var(--navy); }
+.chip.selected {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #ffffff;
+  font-weight: 600;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+.field input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+}
+.field input:focus {
+  outline: 2px solid #93c5fd;
+  border-color: var(--navy);
+}
+.summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-sub);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--accent-bg);
+  color: var(--accent-text);
+  white-space: nowrap;
+}
+.badge.empty {
+  background: #e2e8f0;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.btn {
+  padding: 10px 18px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn.primary {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #ffffff;
+}
+.btn:hover { background: var(--subtle); }
+.btn.primary:hover { background: var(--navy-hover); }
+.save-status {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ok-text);
+  background: var(--ok-bg);
+  border: 1px solid var(--ok-border);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+}
+.hidden { display: none !important; }
+@media (max-width: 640px) {
+  body { padding: 16px 12px 48px; }
+  .card { padding: 16px; }
+  .chips-panel { padding: 14px; }
+  header.page-header h1 { font-size: 20px; }
+}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="page-header">
+      <h1>사례관리 개입 종류 선택</h1>
+    </header>
+
+    <section class="card">
+
+      <div class="chips-panel">
+        <div class="chips-panel-title">개입 종류 (복수 선택 · 첫 선택이 주 개입)</div>
+        <div id="chipGroups"></div>
+        <div class="field hidden" id="otherField">
+          <label for="otherInput">기타 개입 내용</label>
+          <input id="otherInput" type="text" placeholder="목록 외 개입 내용을 한 줄로 기재" />
+        </div>
+        <div class="summary-row" id="summaryRow"></div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn primary" id="saveBtn">선택 저장</button>
+        <button type="button" class="btn" id="resetBtn">초기화</button>
+        <span class="save-status hidden" id="saveStatus"></span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const OTHER_LABEL = "기타 (직접 입력)";
+
+    const INTERVENTION_GROUPS = [
+      { id: "general", label: "일반 사례관리", items: ["관계형성", "정보제공", "안전과 지지"] },
+      { id: "ebt", label: "트라우마 근거기반치료", items: ["CBT", "TF-CBT", "DBT", "CPT", "PE", "EMDR", "PGDT"] },
+      { id: "crisis", label: "위기·안정화·심리교육", items: ["위기개입(안전계획)", "심리교육", "안정화(이완·그라운딩·마음챙김)"] },
+      { id: "specialized", label: "특화 상담·기능회복", items: ["애도지원(상담)", "중독상담(약물·알코올·도박 등)", "일상생활 및 기능회복", "가족상담(가족 내 문제해결)"] },
+      { id: "linkage", label: "연계·기타", items: ["정신건강의학과 진료 연계(약물 포함)", "지역사회 자원 연계(복지·의료비 등)", OTHER_LABEL] }
+    ];
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    let selectedItems = [];
+
+    function clearSaveStatus() {
+      const el = document.getElementById("saveStatus");
+      el.textContent = "";
+      el.classList.add("hidden");
+    }
+
+    function renderChips() {
+      const container = document.getElementById("chipGroups");
+      container.innerHTML = INTERVENTION_GROUPS.map((group) => {
+        const buttons = group.items.map((item) => {
+          const idx = selectedItems.indexOf(item);
+          const selected = idx >= 0;
+          const isPrimary = selected && selectedItems.length > 1 && idx === 0;
+          const label = isPrimary ? item + " · 주" : item;
+          return '<button type="button" class="chip' + (selected ? ' selected' : '') + '" data-item="' + escapeHtml(item) + '">' + escapeHtml(label) + '</button>';
+        }).join("");
+        return '<div class="chip-group"><span class="chip-group-label">' + escapeHtml(group.label) + '</span><div class="chip-list">' + buttons + '</div></div>';
+      }).join("");
+
+      const showOther = selectedItems.includes(OTHER_LABEL);
+      document.getElementById("otherField").classList.toggle("hidden", !showOther);
+    }
+
+    function renderSummary() {
+      const row = document.getElementById("summaryRow");
+      const otherVal = document.getElementById("otherInput").value.trim();
+      if (selectedItems.length === 0) {
+        row.innerHTML = '<span>선택된 개입:</span><span class="badge empty">선택 없음</span>';
+        return;
+      }
+      const badges = selectedItems.map((item, idx) => {
+        const text = item === OTHER_LABEL && otherVal ? "기타: " + otherVal : item;
+        const label = selectedItems.length > 1 && idx === 0 ? text + " · 주" : text;
+        return '<span class="badge">' + escapeHtml(label) + '</span>';
+      }).join("");
+      row.innerHTML = '<span>선택된 개입:</span>' + badges;
+    }
+
+    document.getElementById("chipGroups").addEventListener("click", (e) => {
+      const btn = e.target.closest(".chip");
+      if (!btn) return;
+      const option = btn.dataset.item;
+      if (selectedItems.includes(option)) {
+        selectedItems = selectedItems.filter((item) => item !== option);
+        if (option === OTHER_LABEL) document.getElementById("otherInput").value = "";
+      } else {
+        selectedItems.push(option);
+      }
+      clearSaveStatus();
+      renderChips();
+      renderSummary();
+    });
+
+    document.getElementById("otherInput").addEventListener("input", () => {
+      clearSaveStatus();
+      renderSummary();
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const status = document.getElementById("saveStatus");
+      if (selectedItems.length === 0) {
+        status.textContent = "개입 종류를 1개 이상 선택해 주세요.";
+      } else {
+        status.textContent = "선택 저장됨 (" + selectedItems.length + "개 항목)";
+      }
+      status.classList.remove("hidden");
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      document.getElementById("otherInput").value = "";
+      selectedItems = [];
+      clearSaveStatus();
+      renderChips();
+      renderSummary();
+    });
+
+
+
+    renderChips(); renderSummary();
+  </script>
+</body>
+</html>
